@@ -10,7 +10,8 @@ output:
 
 1. Load the data
 2. Process / transform the data  
-```{r, echo=TRUE}
+
+```r
 FitData <- read.csv("./activity.csv")
 FitSum  <- aggregate(FitData$steps, by=list(FitData$date), na.rm=TRUE, FUN=sum)
 # use na.rm=TRUE to remove NA values for the first part of the analysis
@@ -20,26 +21,38 @@ FitSum  <- aggregate(FitData$steps, by=list(FitData$date), na.rm=TRUE, FUN=sum)
 
 1. Make a histogram of the total number of steps taken each day
 2. Calculate and report the *mean* and *median*
-```{r, echo=TRUE}
+
+```r
 hist(FitSum$x, breaks=25, main="Total Steps taken each day", xlab="Total Steps", col="grey")
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+```r
 FitMean   <- mean(FitSum$x)
 FitMedian <- median(FitSum$x)
 ```
-And the mean is `r sprintf("%5.1f",FitMean)` and the median is `r sprintf("%5.1f",FitMedian)`    
+And the mean is 9354.2 and the median is 10395.0    
 
 
 ## What is the average daily activity pattern?
 
 1. Make a time series plot
 2. Which 5-minute interval contains the maximum number of steps?
-```{r, echo=TRUE}
+
+```r
 FitDay <- aggregate(FitData$steps,by=list(FitData$interval),na.rm=TRUE, FUN=mean)
 plot(FitDay$Group.1,FitDay$x, type="l", xlab="Interval", ylab="Average Steps")
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
+```r
 SumDay <- aggregate(FitData$steps,by=list(FitData$interval),na.rm=TRUE, FUN=sum)
 SumMax <- SumDay[which.max(FitDay$x),1]
 MaxSteps <- SumDay[which.max(FitDay$x),2]
 ```
-The 5-minute interval with the biggest average across all the days is `r SumMax` with `r MaxSteps` steps.
+The 5-minute interval with the biggest average across all the days is 835 with 10927 steps.
 
 ## Imputing missing values
 
@@ -51,20 +64,25 @@ The 5-minute interval with the biggest average across all the days is `r SumMax`
 6. Do these values differ from the estimates from the first part of the assignment? 
 7. What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r, echo=TRUE}
+
+```r
 FitNAs <- sum(is.na(FitData$steps))
 FitData$newsteps <- ifelse(is.na(FitData$steps),as.integer(FitDay[FitData$interval,2]),FitData$steps)
 FitSumx <- aggregate(FitData$newsteps,by=list(FitData$date),na.rm=TRUE, FUN=sum)
 hist(FitSumx$x,breaks=25,main="Total Steps taken each day",xlab="Total Steps",col="grey")
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
+
+```r
 FitMeanx <- mean(FitSumx$x)
 FitMedianx <- median(FitSumx$x)
-
 ```
-The total number of NA observations is `r FitNAs`  
+The total number of NA observations is 2304  
 I will replace using the average value of the number of steps taken 
 on other days in that same interval (rounded down to an integer).    
-The revised mean is `r sprintf("%5.1f",FitMeanx)`   ( from `r sprintf("%5.1f",FitMean)` )
-The revised median is `r sprintf("%5.1f",FitMedianx)` ( from `r sprintf("%5.1f",FitMedian)` ) 
+The revised mean is 9543.5   ( from 9354.2 )
+The revised median is 10395.0 ( from 10395.0 ) 
 
 The mean values have increased by adding activity to replace the missing values. 
 The total number of steps on any day can only increase by adding extra steps to replace missing activity.   
@@ -76,7 +94,8 @@ as they had few if any missing values.
 2. Make a panel plot containing a time series plot and the average number of steps taken, 
 averaged across all weekday days or weekend days.  
 
-```{r, echo=TRUE}
+
+```r
 FitData$day <- ifelse(weekdays(as.Date(FitData$date)) == "Saturday", "Weekend", 
                       ifelse(weekdays(as.Date(FitData$date)) == "Sunday", "Weekend", "Weekday"))
 FitData$day  <- factor(FitData$day)
@@ -85,6 +104,8 @@ library(lattice)
 xyplot(steps ~ interval | factor(day), data = FitWeeks, aspect = 1/2, 
     type = "l")
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
    
 There does appear to be differences between weekdays and weekends. 
 On weekdays, there is a strong peak just after 0830, 
